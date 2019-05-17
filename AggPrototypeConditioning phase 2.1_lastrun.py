@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v3.0.4),
-    on April 08, 2019, at 18:39
+    on May 17, 2019, at 14:23
 If you publish work using this script please cite the PsychoPy publications:
     Peirce, JW (2007) PsychoPy - Psychophysics software in Python.
         Journal of Neuroscience Methods, 162(1-2), 8-13.
@@ -10,9 +10,8 @@ If you publish work using this script please cite the PsychoPy publications:
         Frontiers in Neuroinformatics, 2:10. doi: 10.3389/neuro.11.010.2008
 """
 
-from __future__ import absolute_import, division, print_function
-from builtins import *  # @UnusedWildImport
-from psychopy import locale_setup, sound, gui, visual, core, data, event, logging, clock, parallel
+from __future__ import absolute_import, division
+from psychopy import locale_setup, sound, gui, visual, core, data, event, logging, clock
 from psychopy.constants import (NOT_STARTED, STARTED, PLAYING, PAUSED,
                                 STOPPED, FINISHED, PRESSED, RELEASED, FOREVER)
 import numpy as np  # whole numpy lib is available, prepend 'np.'
@@ -20,79 +19,12 @@ from numpy import (sin, cos, tan, log, log10, pi, average,
                    sqrt, std, deg2rad, rad2deg, linspace, asarray)
 from numpy.random import random, randint, normal, shuffle
 import os  # handy system and path functions
-import time
 import sys  # to get file system encoding
-
-from mcculw import ul
-from mcculw.enums import CounterChannelType
-from mcculw.ul import ULError
-
-from examples.console import util
-from examples.props.counter import CounterProps
-
-
-use_device_detection = True
-# Array of pre-determined sequence of Faces
-faces_list = ["Face1", "Face2", "Face3", "Face2", "Face1", "Face3", "Face1", "Face1", "Face2", "Face1", "Face2", "Face3", "Face2", "Face1", "Face3", "Face1", "Face1", "Face2"]
-# Lower Time Value. After a random time after this less than end_start_time, the image will appear
-start_rand_time = 4
-# Upper Time Value.
-end_rand_time = 5
-
-def run_example():
-    board_num = 0
-
-    if use_device_detection:
-        ul.ignore_instacal()
-        if not util.config_first_detected_device(board_num):
-            print("Could not find device.")
-            return
-
-    ctr_props = CounterProps(board_num)
-
-    # Find a pulse timer channel on the board
-    first_chan = next(
-        (channel for channel in ctr_props.counter_info
-         if channel.type == CounterChannelType.CTRPULSE), None)
-
-    if first_chan == None:
-        util.print_unsupported_example(board_num)
-        return
-
-    timer_num = first_chan.channel_num
-    frequency = 100
-    duty_cycle = 0.5
-
-    try:
-        # Start the pulse timer output (optional parameters omitted)
-        actual_frequency, actual_duty_cycle, _ = ul.pulse_out_start(
-            board_num, timer_num, frequency, duty_cycle, pulse_count = 1)
-
-        # Print information about the output
-        print(
-            "Outputting " + str(actual_frequency)
-            + " Hz with a duty cycle of " + str(actual_duty_cycle)
-            + " to pulse timer channel " + str(timer_num) + ".")
-
-        # Wait for 5 seconds
-        # time.sleep(5)
-
-        # Stop the pulse timer output
-        # ul.pulse_out_stop(board_num, timer_num)
-
-        print("Timer output stopped.")
-    except ULError as e:
-        util.print_ul_error(e)
-    finally:
-        if use_device_detection:
-            ul.release_daq_device(board_num)
-
 
 
 # Ensure that relative paths start from the same directory as this script
 _thisDir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(_thisDir)
-# run_example()
 
 # Store info about the experiment session
 psychopyVersion = '3.0.4'
@@ -111,7 +43,7 @@ filename = _thisDir + os.sep + u'data/%s_%s_%s' % (expInfo['participant'], expNa
 # An ExperimentHandler isn't essential but helps with data saving
 thisExp = data.ExperimentHandler(name=expName, version='',
     extraInfo=expInfo, runtimeInfo=None,
-    originPath='C:\\Users\\sumsh86\\Desktop\\Psychopy aggression\\AggPrototypeConditioning phase 2.1_lastrun.py',
+    originPath='C:\\Users\\sumsh86\\Desktop\\Main AGG codes\\New Psychopy aggression\\AggPrototypeConditioning phase 2.1_lastrun.py',
     savePickle=True, saveWideText=True,
     dataFileName=filename)
 # save a log file for detail verbose info
@@ -124,7 +56,7 @@ endExpNow = False  # flag for 'escape' or other condition => quit the exp
 
 # Setup the Window
 win = visual.Window(
-    size=(1024, 768), fullscr=False, screen=0,
+    size=(1024, 768), fullscr=True, screen=0,
     allowGUI=False, allowStencil=False,
     monitor='testMonitor', color=[0,0,0], colorSpace='rgb',
     blendMode='avg', useFBO=True)
@@ -1162,10 +1094,6 @@ if thisConditioningLoop != None:
     for paramName in thisConditioningLoop:
         exec('{} = thisConditioningLoop[paramName]'.format(paramName))
 
-#Adding a counter variable to keep track of the image being shown from the faces list
-
-faceNumber = 0
-
 for thisConditioningLoop in ConditioningLoop:
     currentLoop = ConditioningLoop
     # abbreviate parameter names if possible (e.g. rgb = thisConditioningLoop.rgb)
@@ -1283,19 +1211,15 @@ for thisConditioningLoop in ConditioningLoop:
     frameN = -1
     continueRoutine = True
     # update component parameters for each repeat
-    ImageFile = "images/" + faces_list[faceNumber] + ".jpg"
-    randomTimeShow = random.uniform(start_rand_time, end_rand_time)
-    print("Outputing image file" + str(ImageFile) + " frame no " + str(faceNumber) + " " + str(randomTimeShow))
     ConditionImages.setImage(ImageFile)
-    faceNumber = faceNumber + 1
     randomTime = random.uniform(1.1, 5)
-
+    
     # keep track of which components have finished
     ConditioningComponents = [ConditionImages, textZap]
     for thisComponent in ConditioningComponents:
         if hasattr(thisComponent, 'status'):
             thisComponent.status = NOT_STARTED
-    current_pulse_delivered = 0
+    
     # -------Start Routine "Conditioning"-------
     while continueRoutine:
         # get current time
@@ -1309,20 +1233,7 @@ for thisConditioningLoop in ConditioningLoop:
             ConditionImages.tStart = t
             ConditionImages.frameNStart = frameN  # exact frame index
             ConditionImages.setAutoDraw(True)
-            if "Face1" in ImageFile:
-                current_pulse_delivered = 1
-            if "Face2" in ImageFile:
-                current_pulse_delivered = 2
         frameRemains = 0.00 + 8- win.monitorFramePeriod * 0.75  # most of one frame period left
-        # print("Frame remains for " + str(frameRemains) + " seconds")
-        if ConditionImages.status == STARTED and t >= randomTimeShow and t <=  randomTimeShow + 1 and current_pulse_delivered != 0:
-            print("Frame remains for " + str(frameRemains) + " seconds")
-            if "Face1" in ImageFile:
-                current_pulse_delivered = current_pulse_delivered - 1
-                run_example()
-            if "Face2" in ImageFile:
-                current_pulse_delivered = current_pulse_delivered - 1
-                run_example()
         if ConditionImages.status == STARTED and t >= frameRemains:
             ConditionImages.setAutoDraw(False)
         
@@ -1336,6 +1247,55 @@ for thisConditioningLoop in ConditioningLoop:
         frameRemains = randomTime + 1.0- win.monitorFramePeriod * 0.75  # most of one frame period left
         if textZap.status == STARTED and t >= frameRemains:
             textZap.setAutoDraw(False)
+        from __future__ import absolute_import, division, print_function
+        
+        from builtins import *  # @UnusedWildImport
+        from mcculw import ul
+        from mcculw.ul import ULError
+        
+        from examples.console import util
+        from examples.props.ao import AnalogOutputProps
+        
+        
+        use_device_detection = True
+        
+        
+        def run_example():
+            board_num = 0
+        
+            if use_device_detection:
+                ul.ignore_instacal()
+                if not util.config_first_detected_device(board_num):
+                    print("Could not find device.")
+                    return
+        
+            channel = 0
+        
+            ao_props = AnalogOutputProps(board_num)
+            if ao_props.num_chans < 1:
+                util.print_unsupported_example(board_num)
+                return
+        
+            ao_range = ao_props.available_ranges[0]
+        
+            data_value = ao_range.range_max / 2
+        
+            try:
+                print(
+                    "Outputting " + str(data_value) + " Volts to channel "
+                    + str(channel) + ".")
+                # Send the value to the device (optional parameter omitted)
+                ul.v_out(board_num, channel, ao_range, data_value)
+            except ULError as e:
+                util.print_ul_error(e)
+            finally:
+                if use_device_detection:
+                    ul.release_daq_device(board_num)
+        
+        
+        if __name__ == '__main__':
+            run_example()
+        
         
         # check for quit (typically the Esc key)
         if endExpNow or event.getKeys(keyList=["escape"]):

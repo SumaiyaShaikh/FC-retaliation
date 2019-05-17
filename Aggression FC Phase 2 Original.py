@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-This experiment was created using PsychoPy3 Experiment Builder (v3.0.0b7),
-    on February 08, 2019, at 17:41
+This experiment was created using PsychoPy3 Experiment Builder (v3.0.4),
+    on April 08, 2019, at 18:39
 If you publish work using this script please cite the PsychoPy publications:
     Peirce, JW (2007) PsychoPy - Psychophysics software in Python.
         Journal of Neuroscience Methods, 162(1-2), 8-13.
@@ -10,7 +10,8 @@ If you publish work using this script please cite the PsychoPy publications:
         Frontiers in Neuroinformatics, 2:10. doi: 10.3389/neuro.11.010.2008
 """
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
+from builtins import *  # @UnusedWildImport
 from psychopy import locale_setup, sound, gui, visual, core, data, event, logging, clock, parallel
 from psychopy.constants import (NOT_STARTED, STARTED, PLAYING, PAUSED,
                                 STOPPED, FINISHED, PRESSED, RELEASED, FOREVER)
@@ -19,26 +20,53 @@ from numpy import (sin, cos, tan, log, log10, pi, average,
                    sqrt, std, deg2rad, rad2deg, linspace, asarray)
 from numpy.random import random, randint, normal, shuffle
 import os  # handy system and path functions
-import sys  # to get file system encoding
 import time
+import sys  # to get file system encoding
 
-from builtins import *  # @UnusedWildImport
 from mcculw import ul
 from mcculw.enums import CounterChannelType
 from mcculw.ul import ULError
 
+from examples.console import util
+from examples.props.counter import CounterProps
+
+
+use_device_detection = True
+# Array of pre-determined sequence of Faces
+faces_list = ["Face1", "Face3", "Face2", "Face3", "Face1", "Face3", "Face1", "Face1", "Face2", "Face1", "Face2", "Face3", "Face2", "Face1", "Face3", "Face2", "Face3", "Face2"]
+# Lower Time Value. After a random time after this less than end_start_time, the image will appear
+start_rand_time = 4
+# Upper Time Value.
+end_rand_time = 5
 
 def run_example():
     board_num = 0
 
-    timer_num = 1
-    frequency = 15
+    if use_device_detection:
+        ul.ignore_instacal()
+        if not util.config_first_detected_device(board_num):
+            print("Could not find device.")
+            return
+
+    ctr_props = CounterProps(board_num)
+
+    # Find a pulse timer channel on the board
+    first_chan = next(
+        (channel for channel in ctr_props.counter_info
+         if channel.type == CounterChannelType.CTRPULSE), None)
+
+    if first_chan == None:
+        util.print_unsupported_example(board_num)
+        return
+
+    timer_num = first_chan.channel_num
+    frequency = 100
     duty_cycle = 0.5
 
     try:
         # Start the pulse timer output (optional parameters omitted)
         actual_frequency, actual_duty_cycle, _ = ul.pulse_out_start(
-            board_num, timer_num, frequency, duty_cycle, pulse_count=1)
+            board_num, timer_num, frequency, duty_cycle, pulse_count = 1)
 
         # Print information about the output
         print(
@@ -47,10 +75,10 @@ def run_example():
             + " to pulse timer channel " + str(timer_num) + ".")
 
         # Wait for 5 seconds
-        time.sleep(5)
+        # time.sleep(5)
 
         # Stop the pulse timer output
-        ul.pulse_out_stop(board_num, timer_num)
+        # ul.pulse_out_stop(board_num, timer_num)
 
         print("Timer output stopped.")
     except ULError as e:
@@ -61,12 +89,13 @@ def run_example():
 
 
 
-
 # Ensure that relative paths start from the same directory as this script
 _thisDir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(_thisDir)
+# run_example()
 
 # Store info about the experiment session
+psychopyVersion = '3.0.4'
 expName = 'AggPrototype'  # from the Builder filename that created this script
 expInfo = {'participant': '', 'session': '001'}
 dlg = gui.DlgFromDict(dictionary=expInfo, title=expName)
@@ -74,6 +103,7 @@ if dlg.OK == False:
     core.quit()  # user pressed cancel
 expInfo['date'] = data.getDateStr()  # add a simple timestamp
 expInfo['expName'] = expName
+expInfo['psychopyVersion'] = psychopyVersion
 
 # Data file name stem = absolute path + name; later add .psyexp, .csv, .log, etc
 filename = _thisDir + os.sep + u'data/%s_%s_%s' % (expInfo['participant'], expName, expInfo['date'])
@@ -81,7 +111,7 @@ filename = _thisDir + os.sep + u'data/%s_%s_%s' % (expInfo['participant'], expNa
 # An ExperimentHandler isn't essential but helps with data saving
 thisExp = data.ExperimentHandler(name=expName, version='',
     extraInfo=expInfo, runtimeInfo=None,
-    originPath='C:\\Users\\sumsh86\\Desktop\\Pratik\\Psychopy aggression\\AggPrototypeConditioning phase 2.1.py',
+    originPath='C:\\Users\\sumsh86\\Desktop\\Psychopy aggression\\AggPrototypeConditioning phase 2.1_lastrun.py',
     savePickle=True, saveWideText=True,
     dataFileName=filename)
 # save a log file for detail verbose info
@@ -285,20 +315,27 @@ BlankText = visual.TextStim(win=win, name='BlankText',
 
 # Initialize components for Routine "ConditioningStart"
 ConditioningStartClock = core.Clock()
+text = visual.TextStim(win=win, name='text',
+    text='You will participate simultaneously with four other players',
+    font='Arial',
+    pos=(0, 0), height=0.1, wrapWidth=None, ori=0, 
+    color='white', colorSpace='rgb', opacity=1, 
+    languageStyle='LTR',
+    depth=0.0);
 CSText = visual.TextStim(win=win, name='CSText',
-    text='YOU have been selected by the system to start the experiment.\n\nYou will play against the four other players.\n ',
+    text='YOU have been randomly selected to start the experiment\n ',
     font='Arial',
     pos=(0, 0), height=0.15, wrapWidth=None, ori=0, 
     color='white', colorSpace='rgb', opacity=1, 
     languageStyle='LTR',
-    depth=0.0);
+    depth=-1.0);
 CSProceed = visual.TextStim(win=win, name='CSProceed',
     text="Press 'Spacebar' when ready to start the session",
     font='Arial',
     pos=(0, -0.7), height=0.1, wrapWidth=None, ori=0, 
     color='white', colorSpace='rgb', opacity=1, 
     languageStyle='LTR',
-    depth=-2.0);
+    depth=-3.0);
 
 # Initialize components for Routine "Blank500"
 Blank500Clock = core.Clock()
@@ -322,22 +359,22 @@ Cross = visual.ShapeStim(
 
 # Initialize components for Routine "Conditioning"
 ConditioningClock = core.Clock()
-# p_port = parallel.ParallelPort(address='0x0378')
 ConditionImages = visual.ImageStim(
     win=win, name='ConditionImages',units='pix', 
     image='sin', mask=None,
     ori=0, pos=(0, 0), size=(360, 450),
     color=[1,1,1], colorSpace='rgb', opacity=1,
     flipHoriz=False, flipVert=False,
-    texRes=128, interpolate=True, depth=-1.0)
+    texRes=128, interpolate=True, depth=0.0)
 
 textZap = visual.TextStim(win=win, name='textZap',
-    text='Shock trigger!',
+    text='Shock delivery!',
     font='Arial',
     pos=(0, 0), height=0.3, wrapWidth=None, ori=0, 
     color='red', colorSpace='rgb', opacity=1, 
     languageStyle='LTR',
-    depth=-3.0);
+    depth=-2.0);
+
 
 # Initialize components for Routine "EndScreen"
 EndScreenClock = core.Clock()
@@ -374,6 +411,10 @@ while continueRoutine:
     # update/draw components on each frame
     
     
+    # check for quit (typically the Esc key)
+    if endExpNow or event.getKeys(keyList=["escape"]):
+        core.quit()
+    
     # check if all components have finished
     if not continueRoutine:  # a component has requested a forced-end of Routine
         break
@@ -382,10 +423,6 @@ while continueRoutine:
         if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
             continueRoutine = True
             break  # at least one component has not yet finished
-    
-    # check for quit (the Esc key)
-    if endExpNow or event.getKeys(keyList=["escape"]):
-        core.quit()
     
     # refresh the screen
     if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
@@ -454,6 +491,10 @@ while continueRoutine:
         WelcomeProceed.frameNStart = frameN  # exact frame index
         WelcomeProceed.setAutoDraw(True)
     
+    # check for quit (typically the Esc key)
+    if endExpNow or event.getKeys(keyList=["escape"]):
+        core.quit()
+    
     # check if all components have finished
     if not continueRoutine:  # a component has requested a forced-end of Routine
         break
@@ -462,10 +503,6 @@ while continueRoutine:
         if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
             continueRoutine = True
             break  # at least one component has not yet finished
-    
-    # check for quit (the Esc key)
-    if endExpNow or event.getKeys(keyList=["escape"]):
-        core.quit()
     
     # refresh the screen
     if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
@@ -515,6 +552,10 @@ while continueRoutine and routineTimer.getTime() > 0:
     if BlankText.status == STARTED and t >= frameRemains:
         BlankText.setAutoDraw(False)
     
+    # check for quit (typically the Esc key)
+    if endExpNow or event.getKeys(keyList=["escape"]):
+        core.quit()
+    
     # check if all components have finished
     if not continueRoutine:  # a component has requested a forced-end of Routine
         break
@@ -523,10 +564,6 @@ while continueRoutine and routineTimer.getTime() > 0:
         if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
             continueRoutine = True
             break  # at least one component has not yet finished
-    
-    # check for quit (the Esc key)
-    if endExpNow or event.getKeys(keyList=["escape"]):
-        core.quit()
     
     # refresh the screen
     if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
@@ -592,6 +629,10 @@ while continueRoutine:
         ICProceed1.frameNStart = frameN  # exact frame index
         ICProceed1.setAutoDraw(True)
     
+    # check for quit (typically the Esc key)
+    if endExpNow or event.getKeys(keyList=["escape"]):
+        core.quit()
+    
     # check if all components have finished
     if not continueRoutine:  # a component has requested a forced-end of Routine
         break
@@ -600,10 +641,6 @@ while continueRoutine:
         if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
             continueRoutine = True
             break  # at least one component has not yet finished
-    
-    # check for quit (the Esc key)
-    if endExpNow or event.getKeys(keyList=["escape"]):
-        core.quit()
     
     # refresh the screen
     if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
@@ -653,6 +690,10 @@ while continueRoutine and routineTimer.getTime() > 0:
     if BlankText.status == STARTED and t >= frameRemains:
         BlankText.setAutoDraw(False)
     
+    # check for quit (typically the Esc key)
+    if endExpNow or event.getKeys(keyList=["escape"]):
+        core.quit()
+    
     # check if all components have finished
     if not continueRoutine:  # a component has requested a forced-end of Routine
         break
@@ -661,10 +702,6 @@ while continueRoutine and routineTimer.getTime() > 0:
         if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
             continueRoutine = True
             break  # at least one component has not yet finished
-    
-    # check for quit (the Esc key)
-    if endExpNow or event.getKeys(keyList=["escape"]):
-        core.quit()
     
     # refresh the screen
     if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
@@ -730,6 +767,10 @@ while continueRoutine:
         ICProceed2.frameNStart = frameN  # exact frame index
         ICProceed2.setAutoDraw(True)
     
+    # check for quit (typically the Esc key)
+    if endExpNow or event.getKeys(keyList=["escape"]):
+        core.quit()
+    
     # check if all components have finished
     if not continueRoutine:  # a component has requested a forced-end of Routine
         break
@@ -738,10 +779,6 @@ while continueRoutine:
         if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
             continueRoutine = True
             break  # at least one component has not yet finished
-    
-    # check for quit (the Esc key)
-    if endExpNow or event.getKeys(keyList=["escape"]):
-        core.quit()
     
     # refresh the screen
     if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
@@ -791,6 +828,10 @@ while continueRoutine and routineTimer.getTime() > 0:
     if BlankText.status == STARTED and t >= frameRemains:
         BlankText.setAutoDraw(False)
     
+    # check for quit (typically the Esc key)
+    if endExpNow or event.getKeys(keyList=["escape"]):
+        core.quit()
+    
     # check if all components have finished
     if not continueRoutine:  # a component has requested a forced-end of Routine
         break
@@ -799,10 +840,6 @@ while continueRoutine and routineTimer.getTime() > 0:
         if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
             continueRoutine = True
             break  # at least one component has not yet finished
-    
-    # check for quit (the Esc key)
-    if endExpNow or event.getKeys(keyList=["escape"]):
-        core.quit()
     
     # refresh the screen
     if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
@@ -943,6 +980,10 @@ while continueRoutine and routineTimer.getTime() > 0:
     if P4G.status == STARTED and t >= frameRemains:
         P4G.setAutoDraw(False)
     
+    # check for quit (typically the Esc key)
+    if endExpNow or event.getKeys(keyList=["escape"]):
+        core.quit()
+    
     # check if all components have finished
     if not continueRoutine:  # a component has requested a forced-end of Routine
         break
@@ -951,10 +992,6 @@ while continueRoutine and routineTimer.getTime() > 0:
         if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
             continueRoutine = True
             break  # at least one component has not yet finished
-    
-    # check for quit (the Esc key)
-    if endExpNow or event.getKeys(keyList=["escape"]):
-        core.quit()
     
     # refresh the screen
     if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
@@ -995,6 +1032,10 @@ while continueRoutine and routineTimer.getTime() > 0:
     if BlankText.status == STARTED and t >= frameRemains:
         BlankText.setAutoDraw(False)
     
+    # check for quit (typically the Esc key)
+    if endExpNow or event.getKeys(keyList=["escape"]):
+        core.quit()
+    
     # check if all components have finished
     if not continueRoutine:  # a component has requested a forced-end of Routine
         break
@@ -1003,10 +1044,6 @@ while continueRoutine and routineTimer.getTime() > 0:
         if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
             continueRoutine = True
             break  # at least one component has not yet finished
-    
-    # check for quit (the Esc key)
-    if endExpNow or event.getKeys(keyList=["escape"]):
-        core.quit()
     
     # refresh the screen
     if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
@@ -1025,7 +1062,7 @@ continueRoutine = True
 # update component parameters for each repeat
 CSContinue = event.BuilderKeyResponse()
 # keep track of which components have finished
-ConditioningStartComponents = [CSText, CSContinue, CSProceed]
+ConditioningStartComponents = [text, CSText, CSContinue, CSProceed]
 for thisComponent in ConditioningStartComponents:
     if hasattr(thisComponent, 'status'):
         thisComponent.status = NOT_STARTED
@@ -1036,6 +1073,16 @@ while continueRoutine:
     t = ConditioningStartClock.getTime()
     frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
     # update/draw components on each frame
+    
+    # *text* updates
+    if t >= 0.0 and text.status == NOT_STARTED:
+        # keep track of start time/frame for later
+        text.tStart = t
+        text.frameNStart = frameN  # exact frame index
+        text.setAutoDraw(True)
+    frameRemains = 0.0 + 1.0- win.monitorFramePeriod * 0.75  # most of one frame period left
+    if text.status == STARTED and t >= frameRemains:
+        text.setAutoDraw(False)
     
     # *CSText* updates
     if t >= 0.0 and CSText.status == NOT_STARTED:
@@ -1072,6 +1119,10 @@ while continueRoutine:
         CSProceed.frameNStart = frameN  # exact frame index
         CSProceed.setAutoDraw(True)
     
+    # check for quit (typically the Esc key)
+    if endExpNow or event.getKeys(keyList=["escape"]):
+        core.quit()
+    
     # check if all components have finished
     if not continueRoutine:  # a component has requested a forced-end of Routine
         break
@@ -1080,10 +1131,6 @@ while continueRoutine:
         if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
             continueRoutine = True
             break  # at least one component has not yet finished
-    
-    # check for quit (the Esc key)
-    if endExpNow or event.getKeys(keyList=["escape"]):
-        core.quit()
     
     # refresh the screen
     if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
@@ -1114,6 +1161,10 @@ thisConditioningLoop = ConditioningLoop.trialList[0]  # so we can initialise sti
 if thisConditioningLoop != None:
     for paramName in thisConditioningLoop:
         exec('{} = thisConditioningLoop[paramName]'.format(paramName))
+
+#Adding a counter variable to keep track of the image being shown from the faces list
+
+faceNumber = 0
 
 for thisConditioningLoop in ConditioningLoop:
     currentLoop = ConditioningLoop
@@ -1152,6 +1203,10 @@ for thisConditioningLoop in ConditioningLoop:
         if BlankText.status == STARTED and t >= frameRemains:
             BlankText.setAutoDraw(False)
         
+        # check for quit (typically the Esc key)
+        if endExpNow or event.getKeys(keyList=["escape"]):
+            core.quit()
+        
         # check if all components have finished
         if not continueRoutine:  # a component has requested a forced-end of Routine
             break
@@ -1160,10 +1215,6 @@ for thisConditioningLoop in ConditioningLoop:
             if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
                 continueRoutine = True
                 break  # at least one component has not yet finished
-        
-        # check for quit (the Esc key)
-        if endExpNow or event.getKeys(keyList=["escape"]):
-            core.quit()
         
         # refresh the screen
         if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
@@ -1204,6 +1255,10 @@ for thisConditioningLoop in ConditioningLoop:
         if Cross.status == STARTED and t >= frameRemains:
             Cross.setAutoDraw(False)
         
+        # check for quit (typically the Esc key)
+        if endExpNow or event.getKeys(keyList=["escape"]):
+            core.quit()
+        
         # check if all components have finished
         if not continueRoutine:  # a component has requested a forced-end of Routine
             break
@@ -1212,10 +1267,6 @@ for thisConditioningLoop in ConditioningLoop:
             if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
                 continueRoutine = True
                 break  # at least one component has not yet finished
-        
-        # check for quit (the Esc key)
-        if endExpNow or event.getKeys(keyList=["escape"]):
-            core.quit()
         
         # refresh the screen
         if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
@@ -1232,39 +1283,46 @@ for thisConditioningLoop in ConditioningLoop:
     frameN = -1
     continueRoutine = True
     # update component parameters for each repeat
+    ImageFile = "images/" + faces_list[faceNumber] + ".jpg"
+    randomTimeShow = random.uniform(start_rand_time, end_rand_time)
+    print("Outputing image file" + str(ImageFile) + " frame no " + str(faceNumber) + " " + str(randomTimeShow))
     ConditionImages.setImage(ImageFile)
+    faceNumber = faceNumber + 1
     randomTime = random.uniform(1.1, 5)
+
     # keep track of which components have finished
     ConditioningComponents = [ConditionImages, textZap]
     for thisComponent in ConditioningComponents:
         if hasattr(thisComponent, 'status'):
             thisComponent.status = NOT_STARTED
-    
+    current_pulse_delivered = 0
     # -------Start Routine "Conditioning"-------
     while continueRoutine:
         # get current time
         t = ConditioningClock.getTime()
         frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
         # update/draw components on each frame
-        # *p_port* updates
-        if t >= 0.0 and p_port.status == NOT_STARTED:
-            # keep track of start time/frame for later
-            p_port.tStart = t
-            p_port.frameNStart = frameN  # exact frame index
-            p_port.status = STARTED
-            win.callOnFlip(p_port.setData, int(1))
-        frameRemains = 0.0 + 2.75- win.monitorFramePeriod * 0.75  # most of one frame period left
-        if p_port.status == STARTED and t >= frameRemains:
-            p_port.status = STOPPED
-            win.callOnFlip(p_port.setData, int(0))
         
         # *ConditionImages* updates
-        if t >= 0.75 and ConditionImages.status == NOT_STARTED:
+        if t >= 0.00 and ConditionImages.status == NOT_STARTED:
             # keep track of start time/frame for later
             ConditionImages.tStart = t
             ConditionImages.frameNStart = frameN  # exact frame index
             ConditionImages.setAutoDraw(True)
-        frameRemains = 0.75 + 2- win.monitorFramePeriod * 0.75  # most of one frame period left
+            if "Face1" in ImageFile:
+                current_pulse_delivered = 1
+            if "Face2" in ImageFile:
+                current_pulse_delivered = 2
+        frameRemains = 0.00 + 8- win.monitorFramePeriod * 0.75  # most of one frame period left
+        # print("Frame remains for " + str(frameRemains) + " seconds")
+        if ConditionImages.status == STARTED and t >= randomTimeShow and t <=  randomTimeShow + 1 and current_pulse_delivered != 0:
+            print("Frame remains for " + str(frameRemains) + " seconds")
+            if "Face1" in ImageFile:
+                current_pulse_delivered = current_pulse_delivered - 1
+                run_example()
+            if "Face2" in ImageFile:
+                current_pulse_delivered = current_pulse_delivered - 1
+                run_example()
         if ConditionImages.status == STARTED and t >= frameRemains:
             ConditionImages.setAutoDraw(False)
         
@@ -1279,6 +1337,10 @@ for thisConditioningLoop in ConditioningLoop:
         if textZap.status == STARTED and t >= frameRemains:
             textZap.setAutoDraw(False)
         
+        # check for quit (typically the Esc key)
+        if endExpNow or event.getKeys(keyList=["escape"]):
+            core.quit()
+        
         # check if all components have finished
         if not continueRoutine:  # a component has requested a forced-end of Routine
             break
@@ -1288,10 +1350,6 @@ for thisConditioningLoop in ConditioningLoop:
                 continueRoutine = True
                 break  # at least one component has not yet finished
         
-        # check for quit (the Esc key)
-        if endExpNow or event.getKeys(keyList=["escape"]):
-            core.quit()
-        
         # refresh the screen
         if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
             win.flip()
@@ -1300,8 +1358,7 @@ for thisConditioningLoop in ConditioningLoop:
     for thisComponent in ConditioningComponents:
         if hasattr(thisComponent, "setAutoDraw"):
             thisComponent.setAutoDraw(False)
-    if p_port.status == STARTED:
-        win.callOnFlip(p_port.setData, int(0))
+    
     
     # the Routine "Conditioning" was not non-slip safe, so reset the non-slip timer
     routineTimer.reset()
@@ -1340,6 +1397,10 @@ while continueRoutine and routineTimer.getTime() > 0:
     if EndText.status == STARTED and t >= frameRemains:
         EndText.setAutoDraw(False)
     
+    # check for quit (typically the Esc key)
+    if endExpNow or event.getKeys(keyList=["escape"]):
+        core.quit()
+    
     # check if all components have finished
     if not continueRoutine:  # a component has requested a forced-end of Routine
         break
@@ -1349,10 +1410,6 @@ while continueRoutine and routineTimer.getTime() > 0:
             continueRoutine = True
             break  # at least one component has not yet finished
     
-    # check for quit (the Esc key)
-    if endExpNow or event.getKeys(keyList=["escape"]):
-        core.quit()
-    
     # refresh the screen
     if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
         win.flip()
@@ -1361,6 +1418,7 @@ while continueRoutine and routineTimer.getTime() > 0:
 for thisComponent in EndScreenComponents:
     if hasattr(thisComponent, "setAutoDraw"):
         thisComponent.setAutoDraw(False)
+
 
 
 # these shouldn't be strictly necessary (should auto-save)
